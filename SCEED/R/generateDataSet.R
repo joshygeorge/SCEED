@@ -51,7 +51,20 @@ generateDataSet <- function(nGenes =10000, nCells =100, group.prop =c(0.5,0.5),n
 	rownames(cell.anns) <- colnames(logCnts)
 	pheno.data = new("AnnotatedDataFrame",cell.anns)
 	probe.data = new("AnnotatedDataFrame",probe.anns)
-	eset <- ExpressionSet(logCnts,featuredata = probe.data,phenoData = pheno.data)
+
+	# Add marker gene expression 
+	groups = unique(cell.group)
+
+	for(j in 1:length(groups))
+	{
+		logFC <- log2(foldChange[j])
+		genes.idx <- which(marker.status == groups[j])
+		cells.idx <- which(cell.group == groups[j])
+		num <- length(genes.idx)*length(cells.idx)
+		x <- rnorm(num,mean=logFC,sd=0.1)
+		logCnts[genes.idx,cells.idx] <- logCnts[genes.idx,cells.idx] + x	
+	}
+	eset <- ExpressionSet(logCnts,featureData = probe.data,phenoData = pheno.data)
 	return(eset)
 }
 
