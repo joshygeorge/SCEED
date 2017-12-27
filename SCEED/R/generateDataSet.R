@@ -29,7 +29,7 @@ generateDataSet <- function(nGenes =10000, nCells =100, group.prop =c(0.5,0.5),n
 		num.cells[i] <- round(nCells*group.prop[i])
 	}
 	num.cells[1] <- nCells - sum(num.cells[2:length(group.prop)])
-	logCnts = exprs(sim.data)
+	cnts = counts(sim.data)
 	marker.status = character(length = nGenes)
 	group.idx <- list()
 	genes.all <- 1:nGenes
@@ -40,21 +40,21 @@ generateDataSet <- function(nGenes =10000, nCells =100, group.prop =c(0.5,0.5),n
 		marker.status[group.idx[[j]]] <- paste("Group",j,sep="")
 	}
 	
-	probe.anns <- data.frame(geneSymbol = rownames(logCnts), markerof = marker.status)
-	rownames(probe.anns) <- rownames(logCnts)
+	probe.anns <- data.frame(primerid = rownames(cnts), markerof = marker.status)
+	rownames(probe.anns) <- rownames(cnts)
 	cell.group <- NULL 
 	for(j in 1:length(group.prop))
 	{
 		cell.group <- c(cell.group,rep(paste("Group",j,sep=""),num.cells[j]))
 	}
-	cell.anns <- data.frame(cellid =colnames(logCnts), group = cell.group)
-	rownames(cell.anns) <- colnames(logCnts)
+	cell.anns <- data.frame(wellKey =colnames(cnts), group = cell.group)
+	rownames(cell.anns) <- colnames(cnts)
 	pheno.data = new("AnnotatedDataFrame",cell.anns)
 	probe.data = new("AnnotatedDataFrame",probe.anns)
 
 	# Add marker gene expression 
 	groups = unique(cell.group)
-
+	logCnts <- log2(cnts +1)
 	for(j in 1:length(groups))
 	{
 		logFC <- log2(foldChange[j])
@@ -64,7 +64,8 @@ generateDataSet <- function(nGenes =10000, nCells =100, group.prop =c(0.5,0.5),n
 		x <- rnorm(num,mean=logFC,sd=0.1)
 		logCnts[genes.idx,cells.idx] <- logCnts[genes.idx,cells.idx] + x	
 	}
-	eset <- ExpressionSet(logCnts,featureData = probe.data,phenoData = pheno.data)
+	cnts <- 2**logCnts
+	eset <- ExpressionSet(cnts,featureData = probe.data,phenoData = pheno.data)
 	return(eset)
 }
 
