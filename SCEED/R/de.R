@@ -30,11 +30,15 @@ find.de.genes <- function(eset)
 
 de.stats <- function(eset)
 {
+	library(MAST)
+	library(data.table)
+	library(Biobase)
 	mastOBJ = FromMatrix(exprs(eset),cData = pData(eset), fData = fData(eset) )
 	zlmCond <- zlm(~group,mastOBJ)
 	summaryCond <- summary(zlmCond, doLRT='groupGroup2')
-	dt <- summaryCond[[1]]
-	return(dt)
+	dt <- summaryCond$datatable
+	df <- as.data.frame(dt)
+	return(df)
 }
 
 

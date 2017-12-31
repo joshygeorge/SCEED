@@ -21,7 +21,7 @@ generateDataSet <- function(nGenes =10000, nCells =100, group.prop =c(0.5,0.5),n
 	{
 		stop("total number of marker genes should be less than the total genes")
 	}
-	splat = newSplatParams(nGenes = 10000, batchCells = nCells, dropout.present = T)
+	splat = newSplatParams(nGenes = 10000, batchCells = nCells, dropout.present = T,seed=sample(1:2000,1))
 	sim.data = splatSimulate(splat, verbose = F)
 	num.cells <- integer(length = length(group.prop))
 	for(i in 1:length(group.prop))
